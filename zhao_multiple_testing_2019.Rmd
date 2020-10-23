@@ -1,0 +1,51 @@
+---
+title: "Multiple Testing When Many p-Values are Uniformly Conservative"
+subtitle: "Multiple Comparisons and Selective Inference Sem. A 2020"
+author: "Giora Simchoni"
+institute: "Stat. and OR Department, TAU"
+date: "`r Sys.Date()`"
+output_dir: "images"
+output:
+  xaringan::moon_reader:
+    css: "slides.css"
+    seal: false
+    chakra: "libs/remark-latest.min.js"
+    includes:
+      in_header: "header.html"
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+
+---
+
+class: title-slide
+
+## Multiple Testing When Many P-Values are Uniformly Conservative
+
+#### Qingyuan Zhao, Dylan S. Small, and Weijie Su (2019)
+
+##### Presented by: Giora Simchoni
+
+### Multiple Comparisons and Selective Inference Sem. A 2020
+
+#### Stat. and OR Department, TAU
+#### 2020-11-05
+
+---
+```{r child = "setup.Rmd"}
+```
+
+```{r packages, echo=FALSE, message=FALSE, warning=FALSE}
+library(tidyverse)
+```
+
+class: section-slide
+
+# At Highest Level
+
+---
+
+## There's a Story
+
+<center><img src = "images/high_level_story.png" style="width: 100%"></center>
