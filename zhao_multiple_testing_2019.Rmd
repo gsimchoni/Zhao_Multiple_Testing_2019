@@ -9,7 +9,6 @@ output:
   xaringan::moon_reader:
     css: "slides.css"
     seal: false
-    chakra: "libs/remark-latest.min.js"
     includes:
       in_header: "header.html"
     nature:
@@ -51,3 +50,44 @@ class: section-slide
 .no_shadow[
 <center><img src = "images/high_level_story.png" style="width: 100%"></center>
 ]
+
+---
+
+class: section-slide
+
+# Motivation
+
+---
+
+## Educational Intervention
+
+[Cooper et al. (2003)](https://www.jstor.org/stable/3516042) Meta-Analysis:
+
+<center><img src = "images/cooper_abstract.png" style="width: 67%"></center>
+
+---
+
+### A typical (over-simplified) Mixed Model
+
+$y_i = \beta_0 + \beta_MX_i + b_S + \epsilon_i$
+
+Where:
+
+$y_i$: Student $i$ "achievement"
+
+$$X_i = \begin{cases}
+      0, & \text{Student i in Modified Calendar}\ \\
+      1, & \text{otherwise}
+    \end{cases}$$
+
+$b_S \sim N(0, \sigma_S^2)$ (Random Effect)
+
+And we're much interested in:
+
+$H: \beta_M \leq 0 \space vs. \space K: \beta_M > 0$
+
+---
+
+## Result: "quite small"
+
+<center><img src = "images/cooper_results.png" style="width: 43%"></center>
