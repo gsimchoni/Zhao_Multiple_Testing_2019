@@ -48,4 +48,6 @@ class: section-slide
 
 ## There's a Story
 
+.no_shadow[
 <center><img src = "images/high_level_story.png" style="width: 100%"></center>
+]
