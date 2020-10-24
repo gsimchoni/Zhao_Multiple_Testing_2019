@@ -155,8 +155,44 @@ Reject `\(H_0\)` if both `\(H_0^+\)` and `\(H_0^-\)` are rejected at level `\(\a
 
 - Forget the ME model
 - Test each study `\(i\)` separately, get a P-Value `\(p_i\)`
-- Input it to your favorite MTP handler: Bonferroni, Fisher, Zaykin's Truncated Product, ...
+- Input `\(p_1, ..., p_n\)` into your favorite MTP handler: Bonferroni, Fisher, BH, ...
 - Done.
+
+---
+
+### The Problems of Conservative Tests
+
+- Suppose `\(Y_1, ..., Y_{100}\)` are `\(N(\mu_i, 1)\)` RVs
+- Global null: `\(H_0 = \cap_{i=1}^n H_{0i} = \{\mu_i \le 0, \forall i\}\)`
+- Observe `\(y_1, ..., y_n\)`
+- P-Value would be: `\(p_i = P_{H_{0i}}(Y_i &gt; y_i) = 1 - \phi(y_i)\)`
+- Calculate `\(p_1, ..., p_n\)`
+- If in reality `\(\{\mu_i = 0, \forall i\} \implies p_i \sim U(0, 1)\)`
+- If in reality e.g. `\(\{\mu_i = -1, \forall i\} \implies p_i \succ U(0, 1)\)`
+- a.k.a P-Values have stochastically larger distribution than `\(U(0, 1)\)`
+- a.k.a P-Values are conservative
+
+---
+
+### How does conservative look like?
+
+
+```r
+y1 &lt;- rnorm(n = 100, mean = 0)
+p1 &lt;- 1 - pnorm(y1, mean = 0)
+y2 &lt;- rnorm(n = 100, mean = -1)
+p2 &lt;- 1 - pnorm(y2, mean = 0)
+```
+
+
+
+.pull-left[
+&lt;img src="images/Conservative-Hists-1.png" width="100%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/Conservative-CDFs-1.png" width="100%" /&gt;
+]
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

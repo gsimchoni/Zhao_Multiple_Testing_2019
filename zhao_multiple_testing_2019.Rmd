@@ -177,5 +177,68 @@ Reject $H_0$ if both $H_0^+$ and $H_0^-$ are rejected at level $\alpha$.
 
 - Forget the ME model
 - Test each study $i$ separately, get a P-Value $p_i$
-- Input it to your favorite MTP handler: Bonferroni, Fisher, Zaykin's Truncated Product, ...
+- Input $p_1, ..., p_n$ into your favorite MTP handler: Bonferroni, Fisher, BH, ...
 - Done.
+
+---
+
+### The Problems of Conservative Tests
+
+- Suppose $Y_1, ..., Y_{100}$ are $N(\mu_i, 1)$ RVs
+- Global null: $H_0 = \cap_{i=1}^n H_{0i} = \{\mu_i \le 0, \forall i\}$
+- Observe $y_1, ..., y_n$
+- P-Value would be: $p_i = P_{H_{0i}}(Y_i > y_i) = 1 - \phi(y_i)$
+- Calculate $p_1, ..., p_n$
+- If in reality $\{\mu_i = 0, \forall i\} \implies p_i \sim U(0, 1)$
+- If in reality e.g. $\{\mu_i = -1, \forall i\} \implies p_i \succ U(0, 1)$
+- a.k.a P-Values have stochastically larger distribution than $U(0, 1)$
+- a.k.a P-Values are conservative
+
+---
+
+### How does conservative look like?
+
+```{r Conservative-P-Values}
+y1 <- rnorm(n = 100, mean = 0)
+p1 <- 1 - pnorm(y1, mean = 0)
+y2 <- rnorm(n = 100, mean = -1)
+p2 <- 1 - pnorm(y2, mean = 0)
+
+```
+
+```{r echo=FALSE}
+df <- tibble(p_val = c(p1, p2),
+             mu = factor(c(rep(0, 100), rep(-1, 100))))
+h <- df %>%
+  ggplot(aes(p_val, fill = mu)) +
+  geom_histogram(bins = 20, alpha = 0.5)
+
+cdf <- df %>%
+  ggplot(aes(p_val, color = mu)) +
+  stat_ecdf()
+```
+
+.pull-left[
+```{r Conservative-Hists, echo=FALSE, out.width="100%"}
+h +
+  labs(y = NULL) +
+  theme_light() +
+  theme(axis.text = element_text(size = 20),
+        axis.title.x = element_text(size = 20),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+]
+
+.pull-right[
+```{r Conservative-CDFs, echo=FALSE, out.width="100%"}
+cdf +
+  labs(y = "F(p_val)") +
+  theme_light() +
+  theme(axis.text = element_text(size = 20),
+        axis.title.y = element_text(size = 20),
+        axis.title.x = element_text(size = 20),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+]
