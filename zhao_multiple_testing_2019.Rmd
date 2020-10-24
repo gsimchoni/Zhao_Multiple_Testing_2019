@@ -144,15 +144,38 @@ tibble(X = factor(c(0, 0, 1, 1)),
 
 ---
 
+#### Why is the ME model unsuitable for testing qualitative interaction?
+
+- $\sigma_S > 0$ significantly, was found. What does that mean?
+- So, go to a Fixed Effects model and make school/district a categorical variable with ~50 levels?...
+- Can the ME model incorporate interaction? Can't guess apriori (and therefore put in the model) which groups (schools, districts) belong to positive/negative treatment effect
+
+---
+
+class: section-slide
+
+# Multiple Testing Problem
+
+---
+
 ### Qualitative Interaction is MTP
 
 - $n$ subgroups or independent studies
 - $b_{S_i} \sim N(\mu_i, \sigma_i^2)$
 - Single study "positive" null: $H^+_{0i} = \{\mu_i \ge 0\}$
-- Global study "positive" null: $H_0^+ = \cap_{i=1}^n H^+_{0i} = \{\mu_i \ge 0, \forall i\}$
-- Global study "negative" null: $H_0^- = \cap_{i=1}^n H^-_{0i} = \{\mu_i \le 0, \forall i\}$
+- Global "positive" null: $H_0^+ = \cap_{i=1}^n H^+_{0i} = \{\mu_i \ge 0, \forall i\}$
+- Global "negative" null: $H_0^- = \cap_{i=1}^n H^-_{0i} = \{\mu_i \le 0, \forall i\}$
 
  $\implies$ Null hypothesis of NO qualitative interaction:
  $$H_0 = H_0^+ \cup H_0^-$$
  
 Reject $H_0$ if both $H_0^+$ and $H_0^-$ are rejected at level $\alpha$.
+
+---
+
+### So we're good?
+
+- Forget the ME model
+- Test each study $i$ separately, get a P-Value $p_i$
+- Input it to your favorite MTP handler: Bonferroni, Fisher, Zaykin's Truncated Product, ...
+- Done.
