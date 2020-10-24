@@ -4,7 +4,7 @@
     <title>Multiple Testing When Many p-Values are Uniformly Conservative</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2020-10-23" />
+    <meta name="date" content="2020-10-24" />
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -65,38 +65,75 @@ class: section-slide
 
 ---
 
-## Educational Intervention
+### Educational Intervention
 
 [Cooper et al. (2003)](https://www.jstor.org/stable/3516042) Meta-Analysis:
 
-&lt;center&gt;&lt;img src = "images/cooper_abstract.png" style="width: 67%"&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src = "images/cooper_abstract.png" style="width: 70%"&gt;&lt;/center&gt;
 
 ---
 
 ### A typical (over-simplified) Mixed Model
 
-`\(y_i = \beta_0 + \beta_MX_i + b_S + \epsilon_i\)`
+`$$y_i = \beta_0 + \beta_MX_i + b_S + \epsilon_i$$`
 
 Where:
 
-`\(y_i\)`: Student `\(i\)` "achievement"
+`$$y_i = \text{Student i "achievement"}$$`
 
 `$$X_i = \begin{cases}
       0, &amp; \text{Student i in Modified Calendar}\ \\
-      1, &amp; \text{otherwise}
+      1, &amp; \text{Otherwise}
     \end{cases}$$`
 
-`\(b_S \sim N(0, \sigma_S^2)\)` (Random Effect)
+`$$b_S \sim N(0, \sigma_S^2) \text{ (Random Effect of Study S)}$$`
 
-And we're much interested in:
+`$$\epsilon_i \sim N(0, \sigma_E^2)$$`
 
-`\(H: \beta_M \leq 0 \space vs. \space K: \beta_M &gt; 0\)`
+And we're interested in:
+
+`$$H_0: \beta_M \leq 0 \space vs. \space H_1: \beta_M &gt; 0$$`
 
 ---
 
-## Result: "quite small"
+### Result: "quite small"
 
-&lt;center&gt;&lt;img src = "images/cooper_results.png" style="width: 43%"&gt;&lt;/center&gt;
+&lt;center&gt;&lt;img src = "images/cooper_results.png" style="width: 45%"&gt;&lt;/center&gt;
+
+---
+
+### But could there be a (qualitative) interaction?
+
+.pull-left[
+
+#### Quantitative (Ordinal) Interaction
+
+&lt;img src="images/Ordinal-Interaction-1.png" width="100%" /&gt;
+
+]
+
+.pull-right[
+
+#### Qualitative (Disordinal) Interaction
+
+&lt;img src="images/Disrdinal-Interaction-1.png" width="100%" /&gt;
+
+]
+
+---
+
+### Qualitative Interaction is MTP
+
+- `\(n\)` subgroups or independent studies
+- `\(b_{S_i} \sim N(\mu_i, \sigma_i^2)\)`
+- Single study "positive" null: `\(H^+_{0i} = \{\mu_i \ge 0\}\)`
+- Global study "positive" null: `\(H_0^+ = \cap_{i=1}^n H^+_{0i} = \{\mu_i \ge 0, \forall i\}\)`
+- Global study "negative" null: `\(H_0^- = \cap_{i=1}^n H^-_{0i} = \{\mu_i \le 0, \forall i\}\)`
+
+ `\(\implies\)` Null hypothesis of NO qualitative interaction:
+ `$$H_0 = H_0^+ \cup H_0^-$$`
+ 
+Reject `\(H_0\)` if both `\(H_0^+\)` and `\(H_0^-\)` are rejected at level `\(\alpha\)`.
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>

@@ -59,35 +59,100 @@ class: section-slide
 
 ---
 
-## Educational Intervention
+### Educational Intervention
 
 [Cooper et al. (2003)](https://www.jstor.org/stable/3516042) Meta-Analysis:
 
-<center><img src = "images/cooper_abstract.png" style="width: 67%"></center>
+<center><img src = "images/cooper_abstract.png" style="width: 70%"></center>
 
 ---
 
 ### A typical (over-simplified) Mixed Model
 
-$y_i = \beta_0 + \beta_MX_i + b_S + \epsilon_i$
+$$y_i = \beta_0 + \beta_MX_i + b_S + \epsilon_i$$
 
 Where:
 
-$y_i$: Student $i$ "achievement"
+$$y_i = \text{Student i "achievement"}$$
 
 $$X_i = \begin{cases}
       0, & \text{Student i in Modified Calendar}\ \\
-      1, & \text{otherwise}
+      1, & \text{Otherwise}
     \end{cases}$$
 
-$b_S \sim N(0, \sigma_S^2)$ (Random Effect)
+$$b_S \sim N(0, \sigma_S^2) \text{ (Random Effect of Study S)}$$
 
-And we're much interested in:
+$$\epsilon_i \sim N(0, \sigma_E^2)$$
 
-$H: \beta_M \leq 0 \space vs. \space K: \beta_M > 0$
+And we're interested in:
+
+$$H_0: \beta_M \leq 0 \space vs. \space H_1: \beta_M > 0$$
 
 ---
 
-## Result: "quite small"
+### Result: "quite small"
 
-<center><img src = "images/cooper_results.png" style="width: 43%"></center>
+<center><img src = "images/cooper_results.png" style="width: 45%"></center>
+
+---
+
+### But could there be a (qualitative) interaction?
+
+.pull-left[
+
+#### Quantitative (Ordinal) Interaction
+
+```{r Ordinal-Interaction, echo=FALSE, out.width="100%"}
+tibble(X = factor(c(0, 0, 1, 1)),
+       Group = factor(c("A", "B", "A", "B")),
+       y = c(5, 6, 6, 12)) %>%
+  ggplot(aes(X, y, color = Group, group = Group)) +
+  geom_line(lwd = 2) +
+  geom_point(size = 8) +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 20),
+        axis.title.x = element_text(size = 24),
+        axis.title.y = element_text(size = 24),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+
+]
+
+.pull-right[
+
+#### Qualitative (Disordinal) Interaction
+
+```{r Disrdinal-Interaction, echo=FALSE, out.width="100%"}
+tibble(X = factor(c(0, 0, 1, 1)),
+       Group = factor(c("A", "B", "A", "B")),
+       y = c(9, 6, 7, 12)) %>%
+  ggplot(aes(X, y, color = Group, group = Group)) +
+  geom_line(lwd = 2) +
+  geom_point(size = 8) +
+  theme_light() +
+  theme(axis.text.x = element_text(size = 20),
+        axis.text.y = element_text(size = 20),
+        axis.title.x = element_text(size = 24),
+        axis.title.y = element_text(size = 24),
+        legend.text = element_text(size = 20),
+        legend.title = element_text(size = 20))
+```
+
+]
+
+---
+
+### Qualitative Interaction is MTP
+
+- $n$ subgroups or independent studies
+- $b_{S_i} \sim N(\mu_i, \sigma_i^2)$
+- Single study "positive" null: $H^+_{0i} = \{\mu_i \ge 0\}$
+- Global study "positive" null: $H_0^+ = \cap_{i=1}^n H^+_{0i} = \{\mu_i \ge 0, \forall i\}$
+- Global study "negative" null: $H_0^- = \cap_{i=1}^n H^-_{0i} = \{\mu_i \le 0, \forall i\}$
+
+ $\implies$ Null hypothesis of NO qualitative interaction:
+ $$H_0 = H_0^+ \cup H_0^-$$
+ 
+Reject $H_0$ if both $H_0^+$ and $H_0^-$ are rejected at level $\alpha$.
