@@ -4,7 +4,7 @@
     <title>Multiple Testing When Many p-Values are Uniformly Conservative</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2020-10-24" />
+    <meta name="date" content="2020-10-25" />
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -73,32 +73,68 @@ class: section-slide
 
 ---
 
-### A typical (over-simplified) Mixed Model
+### A Typical (Simplified) Single-Study Model
 
-`$$y_i = \beta_0 + \beta_MX_i + b_S + \epsilon_i$$`
+`$$y_j = \beta_0 + \beta_MX_j + \epsilon_j$$`
 
 Where:
 
-`$$y_i = \text{Student i "achievement"}$$`
+`$$y_j = \text{Student j "achievement"}$$`
 
-`$$X_i = \begin{cases}
-      0, &amp; \text{Student i in Modified Calendar}\ \\
-      1, &amp; \text{Otherwise}
+`$$X_j = \begin{cases}
+      1, &amp; \text{Student j in Modified Calendar}\ \\
+      0, &amp; \text{Otherwise}
     \end{cases}$$`
 
-`$$b_S \sim N(0, \sigma_S^2) \text{ (Random Effect of Study S)}$$`
-
-`$$\epsilon_i \sim N(0, \sigma_E^2)$$`
+`$$\epsilon_j \sim N(0, \sigma^2)$$`
 
 And we're interested in:
 
 `$$H_0: \beta_M \leq 0 \space vs. \space H_1: \beta_M &gt; 0$$`
 
+(Yes, in some studies this could literally be a t-test)
+
+---
+
+### A Typical (Simplified) Meta-Study Model
+
+- Observe `\(n\)` studies for which we only have the bottom line, such as treatment effect `\(\beta_{M_i}\)` or its p-value `\(p_i\)`
+- Each `\(\beta_{M_i}\)` comes with its own scale or `\(\sigma_i\)`
+- Is there a "global" effect?
+- One approach is to take the *effect size*s `\(d_i = \frac{\beta_{M_i}}{\sigma_i}\)`
+- Let `\(\mu_d =E(d)\)`
+- Use a single sample t/z-test to test the global null hypothesis:
+
+`$$H_0: \mu_d \le 0 \space vs. \space H_1: \mu_d &gt; 0$$`
+
+---
+
+### A (Still Simplified) Meta-Study Mixed Model
+
+`$$y_i = \mu + b_{S_i} + \epsilon_i$$`
+
+Where:
+
+`$$y_i = \text{Study i treatment effect or } \beta_{M_i}$$`
+`$$b_{S_i} \sim N(0, \sigma_S^2) = \text{Study i random effect}$$`
+`$$\epsilon_i \sim N(0, \sigma_i^2)$$`
+Where `\(\sigma_i^2\)` is known from Study `\(i\)`.
+
+Still the global null hypothesis would be:
+
+`$$H_0: \mu \le 0 \space vs. \space H_1: \mu &gt; 0$$`
+
 ---
 
 ### Result: "quite small"
 
-&lt;center&gt;&lt;img src = "images/cooper_results.png" style="width: 45%"&gt;&lt;/center&gt;
+.pull-left[
+&lt;img src = "images/cooper_results_stem_leaf.png" style="width: 100%"&gt;
+
+]
+.pull-right[
+&lt;img src = "images/cooper_results.png" style="width: 90%"&gt;
+]
 
 ---
 
@@ -124,7 +160,7 @@ And we're interested in:
 
 #### Why is the ME model unsuitable for testing qualitative interaction?
 
-- `\(\sigma_S &gt; 0\)` significantly, was found. What does that mean?
+- `\(\sigma^2_S &gt; 0\)` significantly, was found. What does that mean?
 - So, go to a Fixed Effects model and make school/district a categorical variable with ~50 levels?...
 - Can the ME model incorporate interaction? Can't guess apriori (and therefore put in the model) which groups (schools, districts) belong to positive/negative treatment effect
 
@@ -132,45 +168,56 @@ And we're interested in:
 
 class: section-slide
 
-# Multiple Testing Problem
+# Meta-Analysis as a Multiple Testing Problem
 
 ---
 
-### Qualitative Interaction is MTP
+### Meta-Analysis as MTP
 
 - `\(n\)` subgroups or independent studies
-- `\(b_{S_i} \sim N(\mu_i, \sigma_i^2)\)`
-- Single study "positive" null: `\(H^+_{0i} = \{\mu_i \ge 0\}\)`
-- Global "positive" null: `\(H_0^+ = \cap_{i=1}^n H^+_{0i} = \{\mu_i \ge 0, \forall i\}\)`
-- Global "negative" null: `\(H_0^- = \cap_{i=1}^n H^-_{0i} = \{\mu_i \le 0, \forall i\}\)`
+- `\(y_i \sim N(\mu_i, \sigma_i^2)\)` [Study i treatment effect or `\(\beta_{M_i}\)`]
+- Single study null hypothesis: `\(H_{0i} = \{\mu_i \le 0\}\)`
+- Global null hypothesis: `\(H_0 = \cap_{i=1}^n H_{0i} = \{\mu_i \le 0, \forall i\}\)`
 
- `\(\implies\)` Null hypothesis of NO qualitative interaction:
- `$$H_0 = H_0^+ \cup H_0^-$$`
- 
-Reject `\(H_0\)` if both `\(H_0^+\)` and `\(H_0^-\)` are rejected at level `\(\alpha\)`.
+`\(\implies\)`
 
----
-
-### So we're good?
-
-- Forget the ME model
-- Test each study `\(i\)` separately, get a P-Value `\(p_i\)`
-- Input `\(p_1, ..., p_n\)` into your favorite MTP handler: Bonferroni, Fisher, BH, ...
-- Done.
+- Forget the t-test or ME model
+- Get the p-value `\(p_i\)` from each study for `\(H_{0i}\)`
+- Treat `\(p_1, ..., p_n\)` with your favorite MTP handler: Bonferroni, Fisher, BH, ...
+- Test the global null `\(H_0\)` accordingly
+- E.g. with Bonferroni reject `\(H_0\)` if `\(min(p_i) \le \alpha/n\)`
 
 ---
 
-### The Problems of Conservative Tests
+### Testing a Global Null
+
+- Think of any global test that is associated with a series of p-values adjusting function `\(p: [0, 1]^n \rightarrow [0, 1]\)`
+
+- Bonferroni is really: `\(p^B(p_1, ... , p_n) = \min(n \cdot \min_i{p_i}, 1)\)`
+
+
+```r
+p_global_bonferroni &lt;- function(p_vals) {
+  n &lt;- length(p_vals)
+  return(min(n * min(p_vals), 1))
+}
+```
+
+- Looks good, right?
+
+---
+
+### The Problem of Conservative Tests
 
 - Suppose `\(Y_1, ..., Y_{100}\)` are `\(N(\mu_i, 1)\)` RVs
 - Global null: `\(H_0 = \cap_{i=1}^n H_{0i} = \{\mu_i \le 0, \forall i\}\)`
 - Observe `\(y_1, ..., y_n\)`
-- P-Value would be: `\(p_i = P_{H_{0i}}(Y_i &gt; y_i) = 1 - \phi(y_i)\)`
+- p-value would be: `\(p_i = P_{H_{0i}}(Y_i &gt; y_i) = 1 - \phi(y_i)\)`
 - Calculate `\(p_1, ..., p_n\)`
 - If in reality `\(\{\mu_i = 0, \forall i\} \implies p_i \sim U(0, 1)\)`
 - If in reality e.g. `\(\{\mu_i = -1, \forall i\} \implies p_i \succ U(0, 1)\)`
-- a.k.a P-Values have stochastically larger distribution than `\(U(0, 1)\)`
-- a.k.a P-Values are conservative
+- a.k.a p-values have stochastically larger distribution than `\(U(0, 1)\)`
+- a.k.a p-values are conservative, `\(P_{H_{0i}}(Y_i &gt; y_i)\)` "should be" smaller
 
 ---
 
@@ -193,6 +240,202 @@ p2 &lt;- 1 - pnorm(y2, mean = 0)
 .pull-right[
 &lt;img src="images/Conservative-CDFs-1.png" width="100%" /&gt;
 ]
+
+---
+
+class: section-slide
+
+# Qualitative Interaction as a MTP
+
+---
+
+### Qualitative Interaction as MTP
+
+- `\(n\)` subgroups or independent studies
+- `\(y_i \sim N(\mu_i, \sigma_i^2)\)`
+- Single study "positive" null: `\(H^+_{0i} = \{\mu_i \ge 0\}\)`
+- Global "positive" null: `\(H_0^+ = \cap_{i=1}^n H^+_{0i} = \{\mu_i \ge 0, \forall i\}\)`
+- Global "negative" null: `\(H_0^- = \cap_{i=1}^n H^-_{0i} = \{\mu_i \le 0, \forall i\}\)`
+
+ `\(\implies\)` Null hypothesis of NO qualitative interaction:
+ `$$H_0 = H_0^+ \cup H_0^-$$`
+ 
+Reject `\(H_0\)` if both `\(H_0^+\)` and `\(H_0^-\)` are rejected at level `\(\alpha\)`.
+
+.insight[
+💡 Why don't we need a multiple comparisons correction here?
+]
+
+---
+
+### So we're good?
+
+- Forget the t-test or ME model
+- For `\(H_0^+\)`:
+  - Get the p-value `\(p_i\)` from each study for `\(H^+_{0i}\)`
+  - Adjust `\(p_1, ..., p_n\)` with your favorite MTP handler: Bonferroni, Fisher, BH, ...
+  - Test the global null `\(H_0^+\)` e.g. with Bonferroni if `\(p_+^{B} \le \alpha\)`
+- Repeat for `\(H_0^-\)`, reject if both `\(H_0^+\)` and `\(H_0^-\)` are rejected
+- Could also report a global p-value which is `\(\max(p_{+}^{B}, p_{-}^{B})\)`
+- Done.
+
+---
+
+### Qualitative Interaction Scenario
+
+In reality `\(\mu_1 = \mu_2 = 3\)` and `\(\mu_3 = ... = \mu_{100} = -10\)`
+
+
+
+
+```r
+y3 &lt;- rnorm(100, mean = c(3, 3, rep(-10, 98)))
+p3 &lt;- 1 - pnorm(y3, mean = 0)
+
+signif(head(p3), digits = 2)
+```
+
+```
+## [1] 0.00880 0.00073 1.00000 1.00000 1.00000 1.00000
+```
+
+
+
+.pull-left[
+&lt;img src="images/Conservative-Hists2-1.png" width="75%" /&gt;
+]
+
+.pull-right[
+&lt;img src="images/Conservative-CDFs2-1.png" width="75%" /&gt;
+]
+
+---
+
+### Conservative p-values: particularly bad for QI
+
+- `\(H^-_0\)` will never be rejected (Bonferroni (and friends) lose power!)
+- `\(H^+_0\)` will always be rejected
+
+
+```r
+p_pos &lt;- 1 - pnorm(y3, mean = 0)
+p_neg &lt;- pnorm(y3, mean = 0)
+
+p_global_bonferroni(p_pos); p_global_bonferroni(p_neg)
+```
+
+```
+## [1] 0.07271705
+```
+
+```
+## [1] 1.297286e-32
+```
+
+```r
+max(p_global_bonferroni(p_pos), p_global_bonferroni(p_neg)) 
+```
+
+```
+## [1] 0.07271705
+```
+
+- So `\(H_0\)` of no QI will never be rejected! Can't "prove" QI when it clearly is the case.
+
+---
+
+### To summarize
+
+&gt; Intuitively, if we do observe (p1, p2, p3 ... , p100) = (0.001, 0.001, 1, ..., 1), the first thing to be noticed is there are exceptionally many large p-values. This indicates many conservative tests. Naturally, we would like to "ignore" these large p-values and only use the two smaller ones, with which we can easily reject the global null. However, we cannot simply remove the large p-values because this would be data snooping and make the subsequent inference invalid.
+
+&lt;center&gt;&lt;img src = "images/cooper_results.png" style="width: 23%"&gt;&lt;/center&gt;
+
+---
+
+class: section-slide
+
+# Conditional Test
+
+---
+
+### What are Zhao et al. suggesting?
+
+- Given `\(p_1, ..., p_n\)` independent p-values
+- Set a fixed threshold parameter `\(0 &lt; \tau \le 1\)`
+- Let `\(S_\tau = \{i|p_i \le \tau\}\)` (group of p-values smaller than `\(\tau\)`)
+- From basic probability: if `\(p_i \sim U(0, 1)\)` then `\(p_i|p_i \le \tau \sim U(0, \tau)\)` then `\(p_i/\tau|\{i \in S_\tau\} \sim U(0, 1)\)`
+
+
+- Now take these *conditional* p-values `\(p_i/\tau|\{i \in S_\tau\}\)` and perform your favorite MTP procedure `\(p\)`:
+
+`$$p(p_1, ..., p_n; \tau) = p(p_i/\tau|\{i \in S_\tau\})$$`
+
+- Where: `\(p(\emptyset) = 1\)`
+
+.insight[
+💡 What happens when `\(\tau = 1\)`?
+]
+
+---
+
+### Example: Conditional Bonferroni for a Global Null
+
+- Reject a global null `\(H_0\)` if `\(|S_\tau| &gt; 0\)` and:
+
+`$$\min_i{(p_i/\tau)} \le \alpha / |S_\tau|$$`
+
+- Or as we put it "Conditional Bonferroni" p-value would be:
+
+`$$p^{CB}(p_1, ... , p_n; \tau) = \min(|S_\tau| \cdot \min_i{(p_i/\tau)}, 1)$$`
+
+- In our earlier example for `\(\tau = 0.8\)`:
+
+
+```r
+p_global_bonferroni(p3[p3 &lt;= 0.8] / 0.8)
+```
+
+```
+## [1] 0.001817926
+```
+
+---
+
+### Conditional Testing of Qualitative Interaction
+
+
+```r
+p_pos &lt;- 1 - pnorm(y3, mean = 0)
+p_neg &lt;- pnorm(y3, mean = 0)
+
+p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8)
+```
+
+```
+## [1] 0.001817926
+```
+
+```r
+p_global_bonferroni(p_neg[p_neg &lt;= 0.8] / 0.8)
+```
+
+```
+## [1] 1.589175e-32
+```
+
+```r
+max(p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8), p_global_bonferroni(p_neg[p_neg &lt;= 0.8] / 0.8))
+```
+
+```
+## [1] 0.001817926
+```
+
+---
+
+### Back to Educational Intervention
+
+&lt;center&gt;&lt;img src = "images/cooper_conditional_test_for_qi.png" style="width: 100%"&gt;&lt;/center&gt;
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
