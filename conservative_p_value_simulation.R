@@ -31,3 +31,74 @@ df %>%
   stat_ecdf() +
   labs(y = "F(p_val)") +
   theme_light()
+
+### power simulations
+p_global_bonferroni <- function(p_vals) {
+  n <- length(p_vals)
+  return(min(n * min(p_vals), 1))
+}
+
+n_sim <- 10000
+reject <- numeric(n_sim)
+reject_cond <- numeric(n_sim)
+
+for (j in 1:n_sim) {
+  y <- rnorm(100, mean = 0)
+  p <- 1 - pnorm(y, mean = 0)
+  reject[j] <- as.integer(p_global_bonferroni(p) < 0.05)
+  reject_cond[j] <- as.integer(p_global_bonferroni(p[p <= 0.8] / 0.8) < 0.05)
+}
+mean(reject)
+mean(reject_cond)
+
+n_sim <- 10000
+reject <- numeric(n_sim)
+reject_cond <- numeric(n_sim)
+
+for (j in 1:n_sim) {
+  y <- rnorm(100, mean = c(4, rep(0, 99)))
+  p <- 1 - pnorm(y, mean = 0)
+  res <- p_global_bonferroni(p)
+  reject[j] <- as.integer(p_global_bonferroni(p) < 0.05)
+  reject_cond[j] <- as.integer(p_global_bonferroni(p[p <= 0.8] / 0.8) < 0.05)
+}
+mean(reject)
+mean(reject_cond)
+
+
+n_sim <- 10000
+reject <- numeric(n_sim)
+reject_cond <- numeric(n_sim)
+
+for (j in 1:n_sim) {
+  y <- rnorm(100, mean = c(4, rep(-4, 99)))
+  p <- 1 - pnorm(y, mean = 0)
+  res <- p_global_bonferroni(p)
+  reject[j] <- as.integer(p_global_bonferroni(p) < 0.05)
+  reject_cond[j] <- as.integer(p_global_bonferroni(p[p <= 0.8] / 0.8) < 0.05)
+}
+mean(reject)
+mean(reject_cond)
+
+
+
+## QI
+n_sim <- 10000
+reject <- numeric(n_sim)
+reject_cond <- numeric(n_sim)
+
+for (j in 1:n_sim) {
+  y <- rnorm(100, mean = c(rep(1, 50), rep(-1, 50)))
+  p_pos <- 1 - pnorm(y, mean = 0)
+  p_neg <- pnorm(y, mean = 0)
+  p_pos_gl <- p_global_bonferroni(p_pos)
+  p_neg_gl <- p_global_bonferroni(p_neg)
+  p <- max(p_pos_gl, p_neg_gl)
+  reject[j] <- as.integer(p < 0.05)
+  p_pos_gl <- p_global_bonferroni(p_pos[p_pos <= 0.8] / 0.8)
+  p_neg_gl <- p_global_bonferroni(p_neg[p_neg <= 0.8] / 0.8)
+  p <- max(p_pos_gl, p_neg_gl)
+  reject_cond[j] <- as.integer(p < 0.05)
+}
+mean(reject)
+mean(reject_cond)

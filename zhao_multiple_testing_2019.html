@@ -4,7 +4,7 @@
     <title>Multiple Testing When Many p-Values are Uniformly Conservative</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2020-10-25" />
+    <meta name="date" content="2020-10-26" />
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -209,6 +209,12 @@ p_global_bonferroni &lt;- function(p_vals) {
 
 ### The Problem of Conservative Tests
 
+&lt;img src="images/Conservative-P-Value-Demo-1.png" width="100%" /&gt;
+
+---
+
+### The Problem of Conservative Tests
+
 - Suppose `\(Y_1, ..., Y_{100}\)` are `\(N(\mu_i, 1)\)` RVs
 - Global null: `\(H_0 = \cap_{i=1}^n H_{0i} = \{\mu_i \le 0, \forall i\}\)`
 - Observe `\(y_1, ..., y_n\)`
@@ -363,7 +369,7 @@ class: section-slide
 - Given `\(p_1, ..., p_n\)` independent p-values
 - Set a fixed threshold parameter `\(0 &lt; \tau \le 1\)`
 - Let `\(S_\tau = \{i|p_i \le \tau\}\)` (group of p-values smaller than `\(\tau\)`)
-- From basic probability: if `\(p_i \sim U(0, 1)\)` then `\(p_i|p_i \le \tau \sim U(0, \tau)\)` then `\(p_i/\tau|\{i \in S_\tau\} \sim U(0, 1)\)`
+- From basic probability: if `\(p_i\)` are exact and `\(p_i \sim U(0, 1)\)` then `\(p_i|p_i \le \tau \sim U(0, \tau)\)` then `\(p_i/\tau|\{i \in S_\tau\} \sim U(0, 1)\)`
 
 
 - Now take these *conditional* p-values `\(p_i/\tau|\{i \in S_\tau\}\)` and perform your favorite MTP procedure `\(p\)`:
@@ -405,10 +411,11 @@ p_global_bonferroni(p3[p3 &lt;= 0.8] / 0.8)
 
 
 ```r
+tau &lt;- 0.8
 p_pos &lt;- 1 - pnorm(y3, mean = 0)
 p_neg &lt;- pnorm(y3, mean = 0)
 
-p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8)
+(p_pos_gl &lt;- p_global_bonferroni(p_pos[p_pos &lt;= tau] / tau))
 ```
 
 ```
@@ -416,7 +423,7 @@ p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8)
 ```
 
 ```r
-p_global_bonferroni(p_neg[p_neg &lt;= 0.8] / 0.8)
+(p_neg_gl &lt;- p_global_bonferroni(p_neg[p_neg &lt;= tau] / tau))
 ```
 
 ```
@@ -424,7 +431,7 @@ p_global_bonferroni(p_neg[p_neg &lt;= 0.8] / 0.8)
 ```
 
 ```r
-max(p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8), p_global_bonferroni(p_neg[p_neg &lt;= 0.8] / 0.8))
+max(p_pos_gl, p_neg_gl)
 ```
 
 ```
@@ -436,6 +443,197 @@ max(p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8), p_global_bonferroni(p_neg
 ### Back to Educational Intervention
 
 &lt;center&gt;&lt;img src = "images/cooper_conditional_test_for_qi.png" style="width: 100%"&gt;&lt;/center&gt;
+
+---
+
+class: section-slide
+
+# Conditional Test: Assumptions
+
+---
+
+### Defintion 1: Validity
+
+A global test is *valid* if `\(P(p(p_1, ..., p_n) \le \alpha) \le \alpha\)`
+for all `\(0 \le \alpha \le 1\)` under the global null `\(H_0\)`
+
+Is Conditional Bonferroni global p-value valid?
+
+$$
+`\begin{aligned}
+&amp;P(p^{CB}(p_1, ..., p_n) \le \alpha) = P(\min[|S_\tau| \cdot \min{(p_i/\tau)}, 1] \le \alpha) \\
+&amp;= 1 - P(\min[|S_\tau| \cdot \min{(p_i/\tau)}, 1] \ge \alpha) \\
+&amp;= 1 - P(|S_\tau| \cdot \min{(p_i/\tau)} \ge \alpha)P(1 \ge \alpha) \\
+&amp;= 1 - P(\min{(p_i/\tau)} \ge \alpha/|S_\tau|) \cdot 1\\
+&amp;= 1 - P(p_1/\tau \ge \alpha/|S_\tau|, ..., p_{|S_\tau|}/\tau \ge \alpha/|S_\tau|)\\
+&amp;= 1 - \prod{[1 - P(p_i/\tau \le \alpha/|S_\tau|)]} = 1 - (1 - \alpha/|S_\tau|)^{|S_\tau|} \le \alpha
+\end{aligned}`
+$$
+But this only holds if all `\(p_i/\tau\)` are independent and exact!
+
+What if `\(P(p_i/\tau \le \alpha/|S_\tau|) &lt; \alpha/|S_\tau|\)`?
+
+---
+
+### Definition 2: Uniform Validity and Conservativity
+
+A global test is *uniformly valid* if for all `\(0 &lt; \tau &lt; 1\)` such that `\(P(p_i \le \tau) &gt; 0\)`, `\(p_i/\tau\)` given `\(p_i \le \tau\)` is valid.
+
+A p-value is called *uniformly conservative* if it is conservative and uniformly valid.
+
+So, by definition:
+
+**Proposition 2:** The conditional test using any fixed `\(0 &lt; \tau \le 1\)` and any valid global test is also valid if `\(p_1, p_2, ..., p_n\)` are independent
+and uniformly valid.
+
+One conclusion is you can use the conditional test when your p-value test is unfirmly valid/conservative.
+
+---
+
+### Which Tests are Uniformly Valid/Conservative?
+
+Any valid test `\(p_i\)` with CDF `\(F_i(x) = P(p_i \le x)\)` for which:
+
+$$
+F_i(\tau x) \le xF_i(\tau), \forall 0 \le x, \tau \le 1 
+$$
+Because:
+
+`\(F_i(\tau x) = P(p_i \le \tau x) = P(p_i/\tau \le x)\)`
+
+`\(F_i(\tau) \le 1\)`
+
+So:
+
+`\(P(p_i/\tau \le x) \le x\)` which means `\(p_i\)` is uniformly valid.
+
+And whether it is uniformly conservative depends on `\(p_i\)` being conservative or not.
+
+---
+
+### Which means...
+
+- Geometrically, this means that the function `\(F_i(x)\)` is always below the segment from `\((0, 0 = F_i(0))\)` to `\((\tau, F_i(\tau))\)` if `\(0 \le x \le \tau\)`.
+
+&lt;center&gt;&lt;img src = "images/uniformly_conservative.png" style="width: 100%"&gt;&lt;/center&gt;
+
+---
+
+### Which means...
+
+- A sufficient condition (but not necessary) for uniform conservativeness is convexity of the CDF
+
+- From Calculus: When the CDF `\(F(x)\)` is differentiable, convexity of `\(F(x)\)` is equivalent to the density `\(f(x)\)` being monotonically increasing
+
+- Where would we get a statistic `\(T(Y)\)` with monotonically increasing `\(f\)`?
+
+- From Statistical Theory: The one dimensional exponential family with parameter `\(\theta\)` has monotone likelihood ratio (MLR) in statistic `\(T(Y)\)`, meaning for every `\(\theta_2 &gt; \theta_1\)` the likelihood ratio `\(f_{\theta_2}(y) / f_{\theta_1}(y)\)` is a non-decreasing function of `\(T(Y)\)`, and the uniformly most powerful test at level `\(\alpha\)` would be to reject `\(H_0: \theta \le \theta_0\)` if `\(T(Y) \ge C\)` and `\(P_{\theta_0}(T(Y) \ge C) = \alpha\)`
+
+---
+
+### Which means...
+
+- **Proposition 3:** When the true `\(\theta &lt; \theta_0\)`, the UMP one-sided test of `\(H_0: \theta \le \theta_0\)` vs. `\(H_1: \theta &gt; \theta_0\)` in the one-dimensional exponential family is uniformly conservative
+
+- So for example for `\(Y_i \sim N(\mu_i, \sigma_i^2)\)` **where `\(\sigma_i\)` is known** and we're interested in the one sided test `\(H^-_{0i}: \mu_i \le 0\)`. If the true `\(\mu_i &lt; 0\)` the UMP one-sided test using `\(Y_i\)` is uniformly conservative and we can go ahead and use the conditional test!
+
+---
+
+class: section-slide
+
+# Conditional Test: Power Simulations
+
+---
+
+### Will the global one-sided null be rejected?
+
+"1 strong 99 very conservative"
+
+
+```r
+n_sim &lt;- 10000
+reject &lt;- numeric(n_sim); reject_cond &lt;- numeric(n_sim)
+
+for (j in 1:n_sim) {
+  y &lt;- rnorm(100, mean = c(4, rep(-4, 99)))
+  p &lt;- 1 - pnorm(y, mean = 0)
+  reject[j] &lt;- as.integer(p_global_bonferroni(p) &lt; 0.05)
+  reject_cond[j] &lt;- as.integer(p_global_bonferroni(p[p &lt;= 0.8]/0.8) &lt; 0.05)
+}
+mean(reject); mean(reject_cond)
+```
+
+```
+## [1] 0.758
+```
+
+```
+## [1] 0.9856
+```
+
+---
+
+### Will the global one-sided null be rejected?
+
+&lt;center&gt;&lt;img src = "images/simulations1.png" style="width: 100%"&gt;&lt;/center&gt;
+
+---
+
+### Will the QI null be rejected?
+
+"50 positive 50 negative"
+
+
+```r
+reject &lt;- numeric(n_sim); reject_cond &lt;- numeric(n_sim)
+
+for (j in 1:n_sim) {
+  y &lt;- rnorm(100, mean = c(rep(1, 50), rep(-1, 50)))
+  p_pos &lt;- 1 - pnorm(y, mean = 0)
+  p_neg &lt;- pnorm(y, mean = 0)
+  p_pos_gl &lt;- p_global_bonferroni(p_pos)
+  p_neg_gl &lt;- p_global_bonferroni(p_neg)
+  p &lt;- max(p_pos_gl, p_neg_gl)
+  reject[j] &lt;- as.integer(p &lt; 0.05)
+  p_pos_gl &lt;- p_global_bonferroni(p_pos[p_pos &lt;= 0.8] / 0.8)
+  p_neg_gl &lt;- p_global_bonferroni(p_neg[p_neg &lt;= 0.8] / 0.8)
+  p &lt;- max(p_pos_gl, p_neg_gl)
+  reject_cond[j] &lt;- as.integer(p &lt; 0.05)
+}
+mean(reject); mean(reject_cond)
+```
+
+```
+## [1] 0.1817
+```
+
+```
+## [1] 0.2111
+```
+
+---
+
+### Will the QI null be rejected?
+
+&lt;center&gt;&lt;img src = "images/simulations2.png" style="width: 100%"&gt;&lt;/center&gt;
+
+---
+
+class: section-slide
+
+# Conditional Test: Adaptive Threshold
+
+---
+
+---
+
+class: section-slide
+
+# Other Stuff
+
+---
+
+### Testing for Practical Importance
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
