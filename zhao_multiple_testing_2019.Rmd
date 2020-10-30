@@ -705,8 +705,25 @@ plot(1:K, S_t_card / taus, xlab = "k")
 
 ---
 
+Making sure the derivative doesn't increase:
+
 - Let $F$ be the (average) CDF of the p-values: $F(x) = (1/n)\sum F_i(x)$
-- 
+- Then, $|S_\tau|/\tau = |i:p_i \le \tau|/\tau ≈ [nF(\tau)]/\tau$
+- The derivative would be:
+$$
+\frac{d}{d\tau}\frac{F(\tau)}{\tau} = \frac{f(\tau)\tau - F(\tau)}{\tau^2}
+$$
+- So let's stop when there's no strong evidence that $f(\tau)\tau - F(\tau) > 0$
+- We can only estimate $f(\tau)$ and $F(\tau)$ though, with window size $0 < \omega \le 1 - \tau_1$:
+$$
+\hat{F}(\tau) = \frac{|S_\tau|}{n}; \hat{f}(\tau) = \frac{|\{i| \tau \le p_i \le \tau + \omega\}|}{n\omega}
+$$
+---
+
+- final stopping criterion: if we fail to reject that $n\omega\hat{f}(\tau_k) \sim Binomial(n, q\omega)$ with $q < \hat{F}(\tau k)/\tau k$ with some significance level $\beta$
+
+<center><img src = "images/adaptive_thresh_algo1.png" style="width: 70%"></center>
+
 ---
 
 class: section-slide
