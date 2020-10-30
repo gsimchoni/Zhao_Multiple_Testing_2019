@@ -515,15 +515,13 @@ Is Conditional Bonferroni global p-value valid?
 
 $$
 \begin{aligned}
-&P(p^{CB}(p_1, ..., p_n) \le \alpha) = P(\min[|S_\tau| \cdot \min{(p_i/\tau)}, 1] \le \alpha) \\
-&= 1 - P(\min[|S_\tau| \cdot \min{(p_i/\tau)}, 1] \ge \alpha) \\
-&= 1 - P(|S_\tau| \cdot \min{(p_i/\tau)} \ge \alpha)P(1 \ge \alpha) \\
-&= 1 - P(\min{(p_i/\tau)} \ge \alpha/|S_\tau|) \cdot 1\\
-&= 1 - P(p_1/\tau \ge \alpha/|S_\tau|, ..., p_{|S_\tau|}/\tau \ge \alpha/|S_\tau|)\\
-&= 1 - \prod{[1 - P(p_i/\tau \le \alpha/|S_\tau|)]} = 1 - (1 - \alpha/|S_\tau|)^{|S_\tau|} \le \alpha
+&P(p^{CB}(p_1, ..., p_n) \le \alpha) = P(|S_\tau| \cdot \min{(p_i/\tau)} \le \alpha) \\
+&= P(\bigcup \{p_i/\tau \le \alpha/|S_\tau|\}) \\
+&\le \sum P(p_i/\tau \le \alpha/|S_\tau|) \\
+&\le \sum_1^{|S_\tau|} \alpha/|S_\tau| = \alpha
 \end{aligned}
 $$
-But this only holds if all $p_i/\tau$ are independent and exact!
+But this only holds if all $p_i/\tau$ are valid!
 
 What if $P(p_i/\tau \le \alpha/|S_\tau|) < \alpha/|S_\tau|$?
 
@@ -561,7 +559,7 @@ So:
 
 $P(p_i/\tau \le x) \le x$ which means $p_i$ is uniformly valid.
 
-And whether it is uniformly conservative depends on $p_i$ being conservative or not.
+And whether it is uniformly conservative depends on $p_i/\tau$ being conservative or not.
 
 ---
 
@@ -661,6 +659,54 @@ class: section-slide
 
 ---
 
+### How to choose τ without sacrificing the validity of the test?
+
+- **Proposition 4:** Let $F_x = \sigma(\{p_i| p_i \ge x\})$ be the backward filtration for $0 \le x \le 1$. If $\tau = \tau(p_1, ..., p_n)$ is a backward stopping time in the sense that $\{\tau \ge x\}$ is $F_x$-measurable for any
+$0 \le x \le 1$, then Proposition 2 still holds.
+
+- Which basically means (see proof) you're good if you (say, interactively):
+
+  - decide on a decreasing sequence $\tau_1 > ... > \tau_K$
+  - at stage $k$ base your criterion of stopping **ONLY** on $\{p_i|p_i > \tau_k \}$ [the p-values you've discarded so far]
+  - apply global test on $\{p_i/\tau|p_i \le \tau\}$ if $\tau$ is the $\tau_k$ you've stopped at
+
+---
+
+### What would be a good stopping criterion?
+
+- Look again at "Conditional Bonferroni":
+
+$$
+\begin{aligned}
+&p^{CB}(p_1, ... , p_n; \tau) = \min(|S_\tau| \cdot \min_i{(p_i/\tau)}, 1) \\
+&= \min(\frac{|S_\tau|}{\tau} \cdot \min_i{(p_i)}, 1)
+\end{aligned}
+$$
+
+- We'd want to minimize $\frac{|S_\tau|}{\tau}$!
+
+- Intuitively we'd want to discard as many $p_i$ (i.e. decrease $|S_\tau|$) in the minimum amount of steps (i.e. increase $\tau$)
+
+- But how will we know we've reached the minimum $\frac{|S_\tau|}{\tau}$ "in real time"?
+
+---
+
+```{r Minimizing-S-Card, out.width="100%", fig.asp=0.5}
+p_values <- c(1.0, 1.0, 0.95, 0.9, 0.8, 0.7, 0.5, 0.2, 0.1, 0.01, 0.01, 0.001)
+taus <- seq(0.95, 0.05, -0.05)
+K <- length(taus)
+S_t_card <- numeric(K)
+for (k in 1:K) {
+  S_t_card[k] <- length(p_values[p_values <= taus[k]])
+}
+
+plot(1:K, S_t_card / taus, xlab = "k")
+```
+
+---
+
+- Let $F$ be the (average) CDF of the p-values: $F(x) = (1/n)\sum F_i(x)$
+- 
 ---
 
 class: section-slide
@@ -669,4 +715,7 @@ class: section-slide
 
 ---
 
-### Testing for Practical Importance
+- Testing for Practical Importance
+- When the p-values are dependent
+- Power of Conditional Bonferroni over Bonferroni
+- Beyond global testing
