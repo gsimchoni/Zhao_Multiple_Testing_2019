@@ -4,7 +4,7 @@
     <title>Multiple Testing When Many p-Values are Uniformly Conservative</title>
     <meta charset="utf-8" />
     <meta name="author" content="Giora Simchoni" />
-    <meta name="date" content="2020-10-31" />
+    <meta name="date" content="2020-11-01" />
     <head>
       <link rel="icon" href="../DSApps_logo.jpg" type="image/jpg"> 
       <link rel="shortcut icon" href="../DSApps_logo.jpg" type="image/jpg">
@@ -462,14 +462,12 @@ Is Conditional Bonferroni global p-value valid?
 $$
 `\begin{aligned}
 &amp;P(p^{CB}(p_1, ..., p_n) \le \alpha) = P(|S_\tau| \cdot \min{(p_i/\tau)} \le \alpha) \\
-&amp;= P(\bigcup \{p_i/\tau \le \alpha/|S_\tau|\}) \\
-&amp;\le \sum P(p_i/\tau \le \alpha/|S_\tau|) \\
-&amp;\le \sum_1^{|S_\tau|} \alpha/|S_\tau| = \alpha
+&amp;= P(|\{i|p_i \le \tau \}| \cdot \min{(p_i/\tau)} \le \alpha) = ...\\
 \end{aligned}`
 $$
-But this only holds if all `\(p_i/\tau\)` are valid!
+Notice `\(|S_\tau|\)` is a RV, so we're not in trivial land anymore.
 
-What if `\(P(p_i/\tau \le \alpha/|S_\tau|) &lt; \alpha/|S_\tau|\)`?
+.font80percent[though see *Theorem 2* for a proof the "conditional Bonferroni still controls the Type I error asymptotically when the test statistics `\(Y_i\)` are not independent but equally correlated"]
 
 ---
 
@@ -488,6 +486,21 @@ One conclusion is you can use the conditional test when your p-value test is unf
 
 ---
 
+### Wait, aren't all valid tests uniformly valid?
+
+No.
+
+$$
+P(p_i/\tau \le \alpha| p_i \le \tau) = \frac{P(p_i/\tau \le \alpha \cap p_i \le \tau)}{P(p_i \le \tau)} = \frac{P(p_i \le \tau\alpha)}{P(p_i \le \tau)} \overset{?} {\le} \alpha
+$$
+
+- If `\(p_i\)` is exact as said `\(p_i|p_i \le \tau\)` is exact, this is worth `\(\alpha\)`.
+- If `\(p_i\)` is conservative then both numerator and denominator are smaller than `\(\tau\alpha\)` and `\(\alpha\)` respectively, and then what?
+- E.g. if `\(p_i\)` is discrete and `\(P(p_i \le \tau\alpha) = P(p_i \le \tau)\)`
+- And see section 7.2 for more interesting examples
+
+---
+
 ### Which Tests are Uniformly Valid/Conservative?
 
 Any valid test `\(p_i\)` with CDF `\(F_i(x) = P(p_i \le x)\)` for which:
@@ -497,15 +510,11 @@ F_i(\tau x) \le xF_i(\tau), \forall 0 \le x, \tau \le 1
 $$
 Because:
 
-`\(F_i(\tau x) = P(p_i \le \tau x) = P(p_i/\tau \le x)\)`
+$$
+P(p_i/\tau \le x| p_i \le \tau) = \frac{P(p_i \le \tau x)}{P(p_i \le \tau)} = \frac{F_i(\tau x)}{F_i(\tau)} = \overset{?} {\le} x
+$$
 
-`\(F_i(\tau) \le 1\)`
-
-So:
-
-`\(P(p_i/\tau \le x) \le x\)` which means `\(p_i\)` is uniformly valid.
-
-And whether it is uniformly conservative depends on `\(p_i/\tau\)` being conservative or not.
+And whether it is uniformly conservative depends on `\(p_i/\tau | p_i \le \tau\)` being conservative or not.
 
 ---
 
@@ -514,6 +523,12 @@ And whether it is uniformly conservative depends on `\(p_i/\tau\)` being conserv
 - Geometrically, this means that the function `\(F_i(x)\)` is always below the segment from `\((0, 0 = F_i(0))\)` to `\((\tau, F_i(\tau))\)` if `\(0 \le x \le \tau\)`.
 
 &lt;center&gt;&lt;img src = "images/uniformly_conservative.png" style="width: 100%"&gt;&lt;/center&gt;
+
+---
+
+### Our conditional test looks Ok
+
+&lt;img src="images/Simulation-Uniformly-Valid-1.png" width="50%" /&gt;
 
 ---
 
@@ -691,9 +706,21 @@ $$
 \hat{F}(\tau) = \frac{|S_\tau|}{n}; \hat{f}(\tau) = \frac{|\{i| \tau \le p_i \le \tau + \omega\}|}{n\omega}
 $$
 
-- We could try to model at each stage `\(k\)` the quantity `\(n \omega \hat{f}(\tau_k)\)` as a Binomial variable with `\(n\)` trials for `\(n\)` p-values and a constant probability `\(q\omega\)` where `\(q &lt; \hat{F}(\tau_k)/\tau_k\)`. If we fail to reject this distribution, then we've reached a "plateau" and the estimated derivative of `\(\frac{|S_\tau|}{\tau}\)` doesn't seem to go up
+- The quantity `\(n \omega \hat{f}(\tau_k)\)` counts the number of p-values in window size `\(\omega\)`.
+- If the `\(p_i\)` are uniform and independent [and we should stop!] this is a `\(Binomial(n, q \omega)\)` variable where `\(q &lt; \hat{F}(\tau_k)/\tau_k\)`
+- Also this would mean `\(E(n \omega \hat{f}(\tau_k)) = n q \omega\)` which would mean `\(E(\hat{f}(\tau_k)) = q &lt; \hat{F}(\tau_k)/\tau_k\)` and our derivative isn't increasing.
+
+---
 
 - final stopping criterion: if we fail to reject that `\(n\omega\hat{f}(\tau_k) \sim Binomial(n, q\omega)\)` with `\(q &lt; \hat{F}(\tau k)/\tau k\)` with some significance level `\(\beta\)`
+
+- The authors use the p-value of a Binomial test explicitly:
+
+
+```r
+binom.test(f.hat[k] * n * width, n, width * F.hat[k] / tau.seq[k],
+           alternative = "greater")$p.value
+```
 
 ---
 
