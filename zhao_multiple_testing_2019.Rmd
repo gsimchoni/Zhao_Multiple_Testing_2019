@@ -9,8 +9,6 @@ output:
   xaringan::moon_reader:
     css: "slides.css"
     seal: false
-    includes:
-      in_header: "header.html"
     nature:
       highlightStyle: github
       highlightLines: true

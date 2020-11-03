@@ -71,7 +71,7 @@ thead, tfoot, tr:nth-child(even) { background: #eee }
 }
 
 .logo-slide {
-  background-image: url("DSApps_logo.jpg");
+  background-image: url("");
   background-position: center;
   background-size: contain;
   background-color: #05263b;
@@ -95,7 +95,7 @@ thead, tfoot, tr:nth-child(even) { background: #eee }
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url("DSApps_logo.jpg");
+    background-image: url("");
 }
 
 .section-slide h1, .section-slide h2 {
@@ -143,7 +143,7 @@ div.my-footer a {
     width: 10.5%;
     background-repeat: no-repeat;
     background-size: contain;
-    background-image: url("DSApps_logo_white.jpg");
+    background-image: url("");
 }
 
 /* Two-Column Layout */
